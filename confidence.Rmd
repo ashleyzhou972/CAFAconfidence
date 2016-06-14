@@ -1,0 +1,168 @@
+---
+title: "Critical Assessment of CAFA confidence prediction"
+author: "Naihui Zhou"
+date: "May 31, 2016"
+output: pdf_document
+---
+```{r,echo=FALSE}
+conv<-function(conf){
+  if (conf=="True") return(1)
+  else return(0)
+}
+read<-function(filepath){
+  conf = read.table(filepath,sep="\t")
+  conf[,1] = as.numeric(conf[,1])
+  temp = unlist(strsplit(filepath,"/"))
+  filename = temp[length(temp)]
+  filename = unlist(strsplit(filename,'\\.'))[1]
+  return(list(conf,filename))
+}
+getConf1<-function(conf,filename,tp,fp){
+  #first figure
+  par(mfrow = c(2,1))
+  hist(tp[,1],breaks = 200, main = filename,probability = F,xlab = "true positives")
+  hist(fp[,1],breaks = 200,main = NA,probability = F,xlab = "false positives")
+}
+getConf2<-function(conf,filename,tp,fp){
+  par(mfrow = c(1,1))
+  #second figure
+  boxplot(tp[,1],fp[,1],names = c("True postives","False postives"),ylab="Confidence",main=filename)
+  newcol = unlist(lapply(conf[,2], FUN=conv))
+  newconf = cbind(conf,newcol)
+  mse = sum((newconf[,1]-newconf[,3])^2)/nrow(conf)
+  return (mse)
+}
+```
+
+Team Name: Paccanaro Lab\par
+Model: 1\par
+BPO ranking: 1\par
+
+```{r,echo=FALSE,warning=FALSE}
+conf = read('/home/nzhou/git/CAFAAssess/confidence/85/tianlab_1_9606_BPO_confdata.txt')
+confdata = conf[[1]]
+name = conf[[2]]
+tp = confdata[confdata[,2]=="True",]
+fp = confdata[confdata[,2]=="False",]
+getConf1(confdata,name,tp,fp)
+```
+```{r,warning=FALSE}
+
+summary(tp[,1])
+summary(fp[,1])
+t.test(tp[,1],fp[,1],alternative = "g")
+ks.test(tp[,1],fp[,1],alternative = "l")
+```
+```{r,echo=FALSE}
+mse = getConf2(confdata,name,tp,fp)
+```
+\par
+MSE(mean squared error):`r mse`
+\newpage
+
+Team Name: Tian Lab\par
+Model: 1\par
+BPO ranking: 2\par
+
+```{r,echo=FALSE,warning=FALSE}
+conf = read('/home/nzhou/git/CAFAAssess/confidence/85/tianlab_1_9606_BPO_confdata.txt')
+confdata = conf[[1]]
+name = conf[[2]]
+tp = confdata[confdata[,2]=="True",]
+fp = confdata[confdata[,2]=="False",]
+getConf1(confdata,name,tp,fp)
+```
+```{r,warning=FALSE}
+
+summary(tp[,1])
+summary(fp[,1])
+#t.test(tp[,1],fp[,1],alternative = "g")
+ks.test(tp[,1],fp[,1],alternative = "l")
+```
+```{r,echo=FALSE}
+mse = getConf2(confdata,name,tp,fp)
+```
+\par
+MSE(mean squared error):`r mse`
+
+\newpage
+Team Name: MS -kNN\par
+Model: 1\par
+BPO ranking: 3\par
+
+```{r,echo=FALSE,warning=FALSE}
+conf = read('/home/nzhou/git/CAFAAssess/confidence/129/tu_1_9606_BPO_confdata.txt')
+confdata = conf[[1]]
+name = conf[[2]]
+tp = confdata[confdata[,2]=="True",]
+fp = confdata[confdata[,2]=="False",]
+getConf1(confdata,name,tp,fp)
+```
+```{r,warning=FALSE}
+
+summary(tp[,1])
+summary(fp[,1])
+#t.test(tp[,1],fp[,1],alternative = "g")
+ks.test(tp[,1],fp[,1],alternative = "l")
+```
+```{r,echo=FALSE}
+mse = getConf2(confdata,name,tp,fp)
+```
+\par
+MSE(mean squared error):`r mse`
+
+
+
+\newpage
+Team Name: BLAST\par
+Model: 1\par
+BPO ranking: \par
+
+```{r,echo=FALSE,warning=FALSE}
+conf = read('/home/nzhou/git/CAFAAssess/confidence/BLAST/BB4S_bpo_confdata.txt')
+confdata = conf[[1]]
+name = conf[[2]]
+tp = confdata[confdata[,2]=="True",]
+fp = confdata[confdata[,2]=="False",]
+getConf1(confdata,name,tp,fp)
+```
+```{r,warning=FALSE}
+
+summary(tp[,1])
+summary(fp[,1])
+#t.test(tp[,1],fp[,1],alternative = "g")
+ks.test(tp[,1],fp[,1],alternative = "l")
+```
+```{r,echo=FALSE}
+mse = getConf2(confdata,name,tp,fp)
+```
+\par
+MSE(mean squared error):`r mse`
+
+
+
+\newpage
+Team Name: Naive\par
+Model: \par
+BPO ranking: \par
+
+```{r,echo=FALSE,warning=FALSE}
+conf = read('/home/nzhou/git/CAFAAssess/confidence/Naive/BN4S_bpo_confdata.txt')
+confdata = conf[[1]]
+name = conf[[2]]
+tp = confdata[confdata[,2]=="True",]
+fp = confdata[confdata[,2]=="False",]
+getConf1(confdata,name,tp,fp)
+```
+```{r,warning=FALSE}
+
+summary(tp[,1])
+summary(fp[,1])
+#t.test(tp[,1],fp[,1],alternative = "g")
+ks.test(tp[,1],fp[,1],alternative = "l")
+```
+```{r,echo=FALSE}
+mse = getConf2(confdata,name,tp,fp)
+```
+\par
+MSE(mean squared error):`r mse`
