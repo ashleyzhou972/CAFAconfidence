@@ -1,0 +1,117 @@
+---
+title: "Critical Assessment of Conference Attendence"
+author: 
+- "Naihui Zhou"
+- "Friedberg Lab, Iowa State University"
+date: "May 26, 2016"
+output: pdf_document
+---
+```{r,echo=FALSE}
+year = seq(2011,2015,1)
+reg = c(1550,1199,1628,1307,1402)
+SIG = c(1140,908,1264,1097,1072)
+SIGonly = c(274,297,361,399,286)
+earlyPoster = c(678,367,711,429,495)
+allPoster = c(909,645,816,615,676)
+fellowNumber = c(83,99,73,77,64)
+fellowAmount = c(70741,86205,66354.5,64473,50725)
+table = cbind(year,reg,SIG,SIGonly,earlyPoster,allPoster,fellowNumber,fellowAmount)
+table1 = data.frame(table)
+print(table1)
+```
+
+```{r,echo=FALSE}
+lm1 <- lm(reg~.-year,data=table1)
+summary(lm1)
+#this is bad because n<p
+
+lm2 <- lm(reg~.-year-SIGonly-allPoster-fellowAmount,data=table1)
+summary(lm2)
+
+lm3<-lm(reg~earlyPoster,data=table1)
+summary(lm3)
+
+lm4<-lm(reg~allPoster,data=table1)
+summary(lm4)
+
+lm5<-lm(reg~SIG,data=table1)
+summary(lm5)
+
+lm6<-lm(reg~SIG+earlyPoster,data=table1)
+summary(lm6)
+
+predict(lm6,newdata,se.fit = T)
+
+cor(SIG,earlyPoster)
+
+newdata = c(rep(NA,4),398,rep(NA,3))
+table2 = rbind(table1,newdata)
+newdata = table2[6,]
+pre1=predict(lm3,newdata,interval = "predict",se.fit = TRUE)
+pre2 = predict(lm3,newdata,interval = "confidence",se.fit = TRUE)
+```
+
+```{r}
+plot(table1$year,table1$reg,ylim = c(300,1700),xlab="Year", ylab = "Number of registraion/submission",pch=2,main = "ISMB 2011 to 2015")
+points(table1$year,table1$earlyPoster,col="red")
+points(table1$year,table1$allPoster,col="green")
+legend(2014.3,1100,c("registration","early poster","all poster"),col=c("black","red","green"),pch=c(2,1,1))
+
+par(mfrow = c(1,2))
+plot(table1$fellowNumber,table1$reg,xlab = "Number of fellowships", ylab= "Total Registration", main = "Fellowship vs. registration",ylim=c(1000,1700))
+text(table1$fellowNumber,table1$reg,labels=table1$year,pos=1,cex=0.7)
+plot(table1$fellowAmount,table1$reg,xlab = "Amount of fellowships", ylab= "Total Registration", main = "Fellowship vs. registration",ylim=c(1000,1700))
+text(table1$fellowAmount,table1$reg,labels=table1$year,pos=1,cex=0.7)
+
+plot(table1$SIG,table1$reg, main = "Total registration vs. SIG registration", xlab = "SIG registration", ylab = "Total Registration", col="blue", pch=19, lwd = 2,ylim = c(1200,1700))
+text(table1$SIG,table1$reg,labels=table1$year,pos=3)
+
+plot(table1$SIGonly, table1$reg)
+
+
+plot(table1$earlyPoster,table1$reg,xlab = "early poster",ylab = "registration")
+abline(a=808.416,b=1.136,col=34)
+```
+
+```{r,eval=FALSE}
+library(MASS)
+mse = 30.32^2
+c1=c(1,0)
+c2 = c(0,1)
+c3 = c(1,398)
+
+x=model.matrix(lm3)
+se.alpha = 55.1301
+moe.alpha = se.alpha*qt(0.975,3)
+sqrt(mse*(t(c)%*%ginv(t(x)%*%x)%*%c))
+newx = 398
+
+sse = mse*3
+
+sqrt(mse*(t(c1)%*%ginv(t(x)%*%x)%*%c1+t(c2)%*%ginv(t(x)%*%x)%*%c2*newx^2))
+
+t1 = t(c1)%*%ginv(t(x)%*%x)%*%c1
+t2 = t(c2)%*%ginv(t(x)%*%x)%*%c2
+t3 = t(c3)%*%ginv(t(x)%*%x)%*%c3
+
+sqrt(mse*t1)
+sqrt(mse*t2)
+sqrt(mse*t3)
+
+moe=30
+sse*t3/(moe/qt(0.975,3))^2+2
+
+```
+
+
+```{r,eval=FALSE}
+mse = 30.32^2
+sse = mse*3
+s = sqrt(mse)
+x=earlyPoster
+xnew=398
+se.p = s * sqrt(1/3+(xnew-mean(x))^2/(var(x)*5))
+se.pred = sqrt(se.p^2+mse)
+se.pred
+se.p
+```
